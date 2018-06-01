@@ -1,14 +1,23 @@
 from pyexcel_ods import get_data
 import json
 
+sqlScript = ""
+
 
 def openOdsFile():
     while True:
-        fileName = input("File name: ")
+        fileName = input("Enter file name: ")
         try:
             return json.loads(json.dumps(get_data(fileName)))
         except:
-            print("File not found. Please, try again.\n")
+            print("File not found. Please, try again.")
+
+
+def askDatabaseName():
+    dbName = input("Enter database name: ")
+    global sqlScript
+    sqlScript += "CREATE DATABASE " + dbName + ";\n"
+    sqlScript += "USE " + dbName + ";\n\n"
 
 
 def getTablesName(objJson):
@@ -18,6 +27,18 @@ def getTablesName(objJson):
     return arrayTables
 
 
+def setCreateTable(table):
+    global sqlScript
+    sqlScript += "CREATE TABLE " + table + " (\n"
+    sqlScript += "\tid INT NOT NULL AUTO_INCREMENT,\n"
+
+
+def closeTableScript(table):
+    global sqlScript
+    sqlScript += "\tCONSTRAINT pk_" + table + " PRIMARY KEY (id)\n"
+    sqlScript += ");\n\n"
+
+
 def getTableColumns(objJson, table):
     arrayColumns = []
     for field in objJson[table][0]:
@@ -25,11 +46,30 @@ def getTableColumns(objJson, table):
     return arrayColumns
 
 
+def askColumnType(column, i, length):
+    type = input(column + " -> ")
+    type = type.upper()
+    global sqlScript
+    sqlScript += "\t" + column + " " + type
+    if i == length:
+        sqlScript += "\n"
+    else:
+        sqlScript += ",\n"
+
+
 objJson = openOdsFile()
+askDatabaseName()
 arrayTables = getTablesName(objJson)
 for table in arrayTables:
+    setCreateTable(table)
     arrayColumns = getTableColumns(objJson, table)
-    print(len(arrayColumns))
+    print("Set columns type for table " + table + ": (Exemple: VARCHAR(30))")
+    i = 0
+    for column in arrayColumns:
+        i += 1
+        askColumnType(column, i, len(arrayColumns))
+    closeTableScript(table)
+print(sqlScript)
 
 '''
 for linha in objJson['Sheet1']: #para cada linha dessa: ['Jõao Nascimento', 13, 'Mas'] no objJson...
