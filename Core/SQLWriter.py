@@ -1,16 +1,15 @@
 class SQLWriter():
-
-
     def __init__(self):
         self.sqlCreateDatabase = ""
         self.sqlCreateTable = ""
         self.sqlInsert = ""
-
+        self.dbName = ""
 
     def askDatabaseName(self):
-        dbName = input("Enter database name: ")
-        self.sqlCreateTable += "CREATE DATABASE " + dbName + ";\n"
-        self.sqlCreateTable += "USE " + dbName + ";\n\n"
+        self.dbName = input("Enter database name: ")
+        self.sqlCreateTable += "CREATE DATABASE " + self.dbName + ";\n"
+        self.sqlCreateTable += "USE " + self.dbName + ";\n\n"
+
 
     def getTablesName(self, objJson):
         arrayTables = []
@@ -76,3 +75,6 @@ class SQLWriter():
 
     def getFullSQLScript(self):
         return (self.sqlCreateDatabase + self.sqlCreateTable + self.sqlInsert)
+
+    def getDBName(self):
+        return self.dbName
